@@ -20,7 +20,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install youtube-transcript-api google-genai
+        run: pip install youtube-transcript-api==0.6.3 google-genai
 
       - name: Fetch and Proofread Transcripts
         env:
