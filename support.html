@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>สนับสนุน · ARIF SALAFI</title>
+<meta name="description" content="สนับสนุนช่องของ Arif Salafi ตามสะดวก ไม่มีขั้นต่ำ ไม่ต้องแจ้งหรือส่งสลิป">
+<meta name="theme-color" content="#0b0909">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="theme-v6.css">
+<style>
+.sp{max-width:760px;margin:0 auto;padding:46px 22px 20px}
+.sp h1{font-size:clamp(1.8rem,4.5vw,2.6rem)}
+.sp .lede{margin-bottom:10px}
+.way{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ox);border-radius:16px;padding:22px;margin:22px 0}
+.way h2{font-family:var(--display);font-size:1.2rem;margin:0 0 4px}
+.way p{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+.qrw{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.qr{width:184px;height:184px;background:#fff;border-radius:12px;padding:12px;display:grid;place-items:center;color:#333;font-size:13px;text-align:center}
+.qr.empty{background:var(--surface2);color:var(--muted);border:1px dashed var(--line2)}
+.addr{flex:1 1 260px;min-width:0}
+.addr code{display:block;word-break:break-all;background:#0b0909;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--text);margin:0 0 10px}
+.tabs{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
+.note2{color:var(--muted);font-size:.9rem;margin:22px 0 0}
+.way{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.way:hover{border-color:var(--red);box-shadow:0 18px 40px -26px #000}
+.qr.img{width:min(236px,100%);height:auto;padding:10px;display:block}
+.qr.img button{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;border-radius:8px}
+.qr.img img{display:block;width:100%;height:auto;border-radius:6px}
+.qr.img.pp{width:min(260px,100%);padding:0;overflow:hidden}
+.qr.img.pp button{border-radius:12px}
+.acts2{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.acts2 .btn{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.acts2 .btn svg{width:16px;height:16px;flex:none}
+.acts2 .btn-ok{border-color:var(--teal);color:var(--teal-hi)}
+.btn-pri{background:var(--ox);border-color:var(--ox);color:#fff}
+.btn-pri:hover{background:var(--ox-hi);border-color:var(--ox-hi);color:#fff}
+dialog.qrbig{border:1px solid var(--line2);border-radius:18px;background:#0e0a0a;color:var(--text);padding:14px;max-width:min(94vw,440px)}
+dialog.qrbig::backdrop{background:rgba(0,0,0,.78)}
+dialog.qrbig img{display:block;width:100%;height:auto;border-radius:10px;background:#fff}
+dialog.qrbig .qb-x{display:flex;justify-content:flex-end;margin:0 0 10px}
+@media (prefers-reduced-motion:reduce){.way{transition:none}}
+
+</style>
+</head>
+<body>
+<header class="hdr"><div class="hdr-in">
+  <a class="logo" href="index.html"><img class="logo-mark" src="images/logo.webp" width="31" height="36" alt="">ARIF <span>SALAFI</span></a>
+  <div class="acts"><a class="btn btn-line" href="index.html">← กลับหน้าแรก</a></div>
+</div></header>
+<main class="sp">
+  <p class="eyebrow">SUPPORT</p>
+  <h1>สนับสนุนช่อง</h1>
+  <p class="lede">ดู อ่านอีบุ๊ก และค้นหาคำตอบได้ฟรีเสมอ ไม่ต้องสนับสนุนก่อน ถ้าอยากช่วยการทำคอนเทนต์ต่อ สนับสนุนได้ตามสะดวก <b>ไม่มีขั้นต่ำ ไม่ต้องบอกยอด ไม่ต้องส่งสลิป</b> เราไม่เก็บข้อมูลของผู้สนับสนุนในหน้านี้</p>
+
+  <section class="way" id="pp" hidden>
+    <h2>โอนผ่าน PromptPay</h2>
+    <p>สแกน QR ด้วยแอปธนาคาร แล้วใส่จำนวนเงินตามสะดวกในแอป</p>
+    <div class="qrw"><div class="qr" id="ppQR"></div><div class="addr">
+      <div id="ppNoBox" hidden><p style="margin:0 0 6px">หมายเลข PromptPay</p><code id="ppNo"></code></div>
+      <div class="acts2">
+        <button class="btn btn-pri" type="button" data-zoom="ppQR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>ดู QR ขนาดใหญ่</button>
+        <a class="btn btn-line" id="ppDl" href="#" download="arif-salafi-promptpay-qr.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>บันทึกรูป QR</a>
+        <button class="btn btn-line" type="button" id="ppCopyBtn" data-copy="ppNo" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>คัดลอกหมายเลข</button>
+      </div>
+      <p class="note2" style="margin-top:10px">ตรวจชื่อบัญชีผู้รับในแอปธนาคารให้ตรงกับที่ประกาศในเพจก่อนยืนยันทุกครั้ง</p>
+    </div></div>
+  </section>
+
+  <section class="way" id="btc" hidden>
+    <h2>Bitcoin</h2>
+    <p>เลือกช่องทางที่สะดวก Lightning เหมาะกับยอดเล็ก ธุรกรรม Bitcoin ย้อนกลับไม่ได้ ตรวจที่อยู่ให้ตรงกับที่ประกาศในเพจก่อนส่งทุกครั้ง</p>
+    <div class="tabs" id="btcTabs" role="group" aria-label="เลือกช่องทาง"></div>
+    <div class="qrw"><div class="qr" id="btcQR"></div><div class="addr"><code id="btcAddr"></code>
+      <div class="acts2">
+        <button class="btn btn-pri" type="button" data-copy="btcAddr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>คัดลอกที่อยู่</button>
+        <a class="btn btn-line" id="btcOpen" href="#"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>เปิดในแอปกระเป๋า</a>
+        <button class="btn btn-line" type="button" data-zoom="btcQR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>ดู QR ขนาดใหญ่</button>
+        <a class="btn btn-line" id="btcDl" href="#" download="arif-salafi-lightning-qr.png" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>บันทึกรูป QR</a>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="way" id="none" hidden>
+    <h2>ยังไม่เปิดรับสนับสนุนในตอนนี้</h2>
+    <p style="margin:0">ช่องทางรับสนับสนุนจะเปิดเร็ว ๆ นี้ ระหว่างนี้ช่วยกดติดตาม แชร์คลิป หรือบอกต่อเพื่อนได้เลย ขอบคุณที่แวะมาครับ</p>
+  </section>
+
+  <p class="note2">ไม่ต้องแจ้งเราหลังโอน ทุกการสนับสนุนช่วยให้ช่องทำงานต่อได้จริง ถ้าอยากทักทาย ติดต่อได้ทาง <a id="contact" href="#">เพจ Facebook</a></p>
+</main>
+<dialog class="qrbig" id="qrBig" aria-label="QR ขนาดใหญ่"><div class="qb-x"><button class="btn btn-line" type="button" id="qrBigX">ปิด</button></div><img id="qrBigImg" alt=""></dialog>
+<footer class="ftr"><div class="wrap ftr-in"><a class="ftr-logo" href="index.html" aria-label="ARIF SALAFI หน้าแรก"><img src="images/logo-banner.webp" width="150" height="124" alt="ARIF SALAFI since 2019" loading="lazy"></a><div class="soc soc-f" data-soc><span class="soc-l">ติดตามได้ที่</span><a href="#" data-social="youtube" hidden aria-label="ติดตามบน YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.6 7.2a2.5 2.5 0 0 0-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.83.43A2.5 2.5 0 0 0 2.4 7.2C2 8.78 2 12 2 12s0 3.22.4 4.8a2.5 2.5 0 0 0 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.83-.43a2.5 2.5 0 0 0 1.77-1.77C22 15.22 22 12 22 12s0-3.22-.4-4.8ZM10 15V9l5.2 3L10 15Z"/></svg></a><a href="#" data-social="facebook" hidden aria-label="ติดตามบน Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8.6c0-.3.2-.6.6-.6z"/></svg></a><a href="#" data-social="instagram" hidden aria-label="ติดตามบน Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.3" fill="currentColor"/></svg></a><a href="#" data-social="tiktok" hidden aria-label="ติดตามบน TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.6 3a5.6 5.6 0 0 0 4.4 4.9v3.3a9 9 0 0 1-4.4-1.4v6.2a6 6 0 1 1-6-6c.4 0 .8 0 1.2.1v3.4a2.7 2.7 0 1 0 1.5 2.5V3z"/></svg></a></div><a href="index.html">หน้าแรก</a><a href="privacy.html">นโยบายความเป็นส่วนตัว</a><span class="sp2" style="margin-left:auto">© Arif Salafi</span></div></footer>
+<script src="config.js"></script>
+<script>
+(function(){var S=(window.SITE_CONFIG||{}).SOCIAL||{};
+[].forEach.call(document.querySelectorAll("[data-social]"),function(a){var u=S[a.getAttribute("data-social")];if(u&&/^https?:\/\//.test(u)){a.href=u;a.target="_blank";a.rel="noopener";a.hidden=false}});
+[].forEach.call(document.querySelectorAll("[data-soc]"),function(w){w.hidden=!w.querySelector("a:not([hidden])")})})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  var C = window.SITE_CONFIG || {}, $ = function(i){ return document.getElementById(i); };
+  function crc16(s){ var c=0xFFFF; for(var i=0;i<s.length;i++){ c ^= s.charCodeAt(i)<<8; for(var j=0;j<8;j++){ c = (c&0x8000) ? ((c<<1)^0x1021) : (c<<1); c &= 0xFFFF; } } return ("0000"+c.toString(16).toUpperCase()).slice(-4); }
+  function tlv(id,v){ return id+("0"+v.length).slice(-2)+v; }
+  // PromptPay QR แบบไม่ระบุยอด (static) ผู้โอนใส่ยอดเองในแอปธนาคาร (ใช้เมื่อไม่มีรูป QR ใน config)
+  function ppPayload(raw){
+    var id = String(raw).replace(/\D/g,""), tag, val;
+    if(id.length===13){ tag="02"; val=id; } else if(id.length===15){ tag="03"; val=id; } else { tag="01"; val="0066"+id.replace(/^0/,""); }
+    var p = tlv("00","01")+tlv("01","11")+tlv("29", tlv("00","A000000677010111")+tlv(tag,val))+tlv("53","764")+tlv("58","TH")+"6304";
+    return p + crc16(p);
+  }
+  function draw(box, text){
+    box.innerHTML = ""; box.className = "qr";
+    if(window.QRCode){ new QRCode(box,{text:text,width:160,height:160,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M}); }
+    else { box.classList.add("empty"); box.textContent = "สร้าง QR ไม่ได้ ใช้ที่อยู่ด้านข้างแทน"; }
+  }
+  // แสดงรูป QR ที่อัปโหลดไว้ (กดดูภาพใหญ่ได้)
+  function showImg(box, src, alt, extra){
+    box.innerHTML = ""; box.className = "qr img" + (extra ? " " + extra : "");
+    var bt = document.createElement("button"); bt.type = "button"; bt.setAttribute("data-zoom", box.id); bt.setAttribute("aria-label", "ดู " + alt + " ขนาดใหญ่");
+    var im = document.createElement("img"); im.src = src; im.alt = alt; im.loading = "lazy";
+    bt.appendChild(im); box.appendChild(bt);
+    im.onerror = function(){ box.className = "qr empty"; box.textContent = "โหลดรูป QR ไม่ได้ ใช้ที่อยู่ด้านข้างแทน"; };
+  }
+  var any = false;
+
+  // ---- PromptPay ----
+  if(C.PROMPTPAY_QR_IMG || C.PROMPTPAY_ID){
+    any = true; $("pp").hidden = false;
+    if(C.PROMPTPAY_ID){ $("ppNoBox").hidden = false; $("ppCopyBtn").hidden = false; $("ppNo").textContent = C.PROMPTPAY_ID; }
+    if(C.PROMPTPAY_QR_IMG){ showImg($("ppQR"), C.PROMPTPAY_QR_IMG, "PromptPay QR", "pp"); $("ppDl").href = C.PROMPTPAY_QR_IMG; }
+    else { draw($("ppQR"), ppPayload(C.PROMPTPAY_ID)); $("ppDl").hidden = true; document.querySelector('[data-zoom="ppQR"]').hidden = true; }
+  }
+
+  // ---- Bitcoin / Lightning ----
+  var chans = [];
+  if(C.DONATE_LN){ chans.push({k:"ln", name:"Lightning", addr:C.DONATE_LN, uri:"lightning:"+C.DONATE_LN, img:C.LN_QR_IMG||"", open:"เปิดในแอปกระเป๋า"}); }
+  if(C.DONATE_BTC){ chans.push({k:"chain", name:"Bitcoin on-chain", addr:C.DONATE_BTC, uri:"bitcoin:"+C.DONATE_BTC, img:C.BTC_QR_IMG||"", open:"เปิดในแอปกระเป๋า"}); }
+  function pick(i){
+    var c = chans[i]; $("btcAddr").textContent = c.addr;
+    if(c.img){ showImg($("btcQR"), c.img, c.name + " QR"); $("btcDl").hidden = false; $("btcDl").href = c.img; $("btcDl").download = "arif-salafi-" + c.k + "-qr" + (c.img.match(/\.\w+$/)||[".png"])[0]; }
+    else { draw($("btcQR"), c.uri); $("btcDl").hidden = true; }
+    $("btcOpen").href = c.uri;
+    [].forEach.call($("btcTabs").children,function(b,k){ b.setAttribute("aria-pressed", k===i); });
+  }
+  if(chans.length){
+    any = true; $("btc").hidden = false;
+    if(chans.length > 1){
+      $("btcTabs").innerHTML = chans.map(function(c,i){ return '<button type="button" class="chip" data-i="'+i+'" aria-pressed="false">'+c.name+'</button>'; }).join("");
+      $("btcTabs").addEventListener("click",function(e){ var b=e.target.closest("[data-i]"); if(b) pick(+b.getAttribute("data-i")); });
+    } else { $("btcTabs").hidden = true; }
+    pick(0);
+  }
+  $("none").hidden = any;
+
+  // ---- ปุ่มคัดลอก ----
+  document.addEventListener("click",function(e){
+    var b = e.target.closest("[data-copy]"); if(!b) return;
+    var t = $(b.getAttribute("data-copy")).textContent, old = b.innerHTML;
+    var done = function(){ b.classList.add("btn-ok"); b.textContent = "คัดลอกแล้ว ✓"; setTimeout(function(){ b.classList.remove("btn-ok"); b.innerHTML = old; }, 1800); };
+    var fail = function(){ b.textContent = "คัดลอกไม่ได้ ลองกดค้างที่ข้อความ"; };
+    try{ navigator.clipboard.writeText(t).then(done, fail); }catch(err){ fail(); }
+  });
+
+  // ---- ดู QR ขนาดใหญ่ ----
+  var dlg = $("qrBig");
+  document.addEventListener("click",function(e){
+    var z = e.target.closest("[data-zoom]"); if(!z) return;
+    var img = $(z.getAttribute("data-zoom")).querySelector("img"); if(!img) return;
+    $("qrBigImg").src = img.src; $("qrBigImg").alt = img.alt;
+    if(dlg.showModal){ dlg.showModal(); } else { window.open(img.src, "_blank", "noopener"); }
+  });
+  $("qrBigX").addEventListener("click", function(){ dlg.close(); });
+  dlg.addEventListener("click", function(e){ if(e.target === dlg){ dlg.close(); } });
+
+  if(C.CONTACT_URL){ $("contact").href = C.CONTACT_URL; $("contact").target = "_blank"; $("contact").rel = "noopener"; }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+name: Daily YouTube Transcript Sync
+
+on:
+  schedule:
+    - cron: '0 19 * * *' # รันอัตโนมัติทุกวัน เวลา 02:00 น. (เวลาไทย)
+  workflow_dispatch:     # กดสั่งรันเองได้ในแท็บ Actions ของ GitHub
+
+jobs:
+  sync-transcripts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install youtube-transcript-api google-genai
+
+      - name: Fetch and Proofread Transcripts
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/sync_transcripts.py
+
+      - name: Commit and Push updated JSON
+        run: |
+          git config user.name "Arif Auto-Sync Bot"
+          git config user.email "bot@arifsalafi.com"
+          git add data/transcripts-index.json
+          git diff --staged --quiet || (git commit -m "chore: auto-update YouTube transcripts" && git push)

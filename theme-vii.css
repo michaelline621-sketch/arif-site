@@ -1,0 +1,131 @@
+/* ==========================================================================
+   theme-vii.css — หน้าบทความสไตล์นิตยสาร (อ้างอิง VII The Magazine)
+   โหลดต่อจาก theme-v6.css ใช้เฉพาะในกล่อง .vii (หน้ารวมบทความ หน้าอ่าน และบล็อกบนหน้าแรก)
+   สลับธีมที่ config.js: ART_THEME = "light" (กระดาษขาว) หรือ "dark" (พื้นดำเข้ากับเว็บ)
+   ========================================================================== */
+.vii{
+  --vi-paper:#fff; --vi-ink:#000; --vi-text:#2a2a2a; --vi-ex:#555; --vi-mute:#6b6b6b; --vi-rule:#dedede;
+  --vi-panel:#1f1f1f; --vi-red:#8c1c1c; --vi-chip:#1a1a1a; --vi-chip-ink:#fff; --vi-btn:#1a1a1a;
+  --vi-head:var(--head,'Prompt','Sarabun',sans-serif); --vi-body:var(--sans,'Sarabun',system-ui,sans-serif);
+  color:var(--vi-text); font-family:var(--vi-body);
+}
+.vii.vi-dark{
+  --vi-paper:transparent; --vi-ink:#fff; --vi-text:#e6dcd6; --vi-ex:#c9beb6; --vi-mute:#a89d96; --vi-rule:#2c2322;
+  --vi-panel:#161111; --vi-red:#ff5a45; --vi-chip:#B5121B; --vi-btn:#B5121B;
+}
+.vii a{color:inherit}
+.vii a:focus-visible,.vii button:focus-visible{outline:2px solid var(--vi-red);outline-offset:2px}
+.vi-paper{background:var(--vi-paper);padding:clamp(16px,3vw,30px);margin-top:16px}
+.vi-paper.vi-dark{padding:0}
+
+/* ---------- ชิ้นส่วนร่วม ---------- */
+.vi-meta{margin:0;font-size:13.5px;line-height:1.6;color:var(--vi-mute)}
+.vi-meta span{display:block}
+.vi-ex{margin:8px 0 6px;font-size:15px;line-height:1.8;color:var(--vi-ex);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.vi-go{display:block;text-align:right;font-size:14px;color:var(--vi-text);text-decoration:none}
+.vi-go:hover{color:var(--vi-red)}
+.vi-chip{display:inline-flex;align-items:center;gap:5px;background:var(--vi-chip);color:var(--vi-chip-ink);font:600 11.5px/1 var(--vi-head);padding:5px 8px 5px 7px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.vi-chip::before{content:"";border-left:7px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent}
+
+/* ภาพปก: โปสเตอร์แนวตั้ง 4:5 ไม่ครอบตัด ไม่ลดสี */
+.vi-cv{position:relative;display:block;background:var(--vi-panel);overflow:hidden;aspect-ratio:4/5}
+.vi-cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vi-cv img.fit{object-fit:contain}
+.vi-ph{position:absolute;inset:0;display:none;flex-direction:column;justify-content:space-between;padding:14px;color:#fff}
+.vi-ph::before{content:"";display:block;width:34px;height:4px;background:#c0392b}
+.vi-ph span{font:600 clamp(15px,1.7vw,21px)/1.5 var(--vi-head);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.vi-noimg .vi-ph{display:flex}
+.vi-noimg img{display:none}
+
+/* ภาพใหญ่ส่วนบน: โปสเตอร์เต็มรูปบนพื้นหลังเบลอของรูปเดียวกัน */
+.vi-stage{position:relative;display:block;aspect-ratio:3/2;background:var(--vi-panel);overflow:hidden}
+.vi-stage .vi-bg{position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);object-fit:cover;filter:blur(24px) brightness(.45) saturate(1.1)}
+.vi-stage .vi-main{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);height:100%;width:auto;max-width:100%}
+
+/* ---------- ส่วนบนสุด (hero) ---------- */
+.vi-hero{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px;padding-bottom:28px;border-bottom:1px solid var(--vi-rule);align-items:start}
+.vi-hl{display:block}
+.vi-tabs{display:inline-flex;background:#1a1a1a;border-radius:4px;padding:2px;margin-bottom:12px}
+.vi-dark .vi-tabs{background:#2a2020}
+.vi-tabs button{border:0;background:none;color:#bdbdbd;font:600 12.5px/1 var(--vi-head);padding:8px 12px;border-radius:3px;cursor:pointer}
+.vi-tabs button[aria-pressed="true"]{background:#fff;color:#000}
+.vi-t{font:700 clamp(26px,3.6vw,38px)/1.38 var(--vi-head);color:var(--vi-ink);margin:0 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.vi-t a{text-decoration:none}
+.vi-t a:hover{color:var(--vi-red)}
+.vi-hero .vi-chip{margin:10px 0 0}
+.vi-by{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--vi-rule);font-size:13.5px;color:var(--vi-mute)}
+.vi-by b{color:var(--vi-ink);margin-right:8px}
+.vi-by a{text-decoration:underline;text-underline-offset:3px}
+.vi-by a:hover{color:var(--vi-red)}
+
+/* ---------- รายการ ---------- */
+.vi-sec{padding-top:26px}
+.vi-top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.vi-h{font:700 20px/1.4 var(--vi-head);color:var(--vi-ink);margin:0}
+.vi-filters{display:flex;gap:3px;flex-wrap:wrap}
+.vi-filters a{display:inline-flex;gap:6px;align-items:baseline;font:600 13px/1 var(--vi-head);color:var(--vi-mute);padding:8px 11px;border-radius:3px;text-decoration:none}
+.vi-filters a span{font-weight:500;opacity:.8}
+.vi-filters a:hover{color:var(--vi-ink)}
+.vi-filters a[aria-current="true"]{background:var(--vi-chip);color:var(--vi-chip-ink)}
+.vi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px 18px}
+.vi-grid.vi-home{margin:18px 0}
+.vi-card h3{font:700 17px/1.5 var(--vi-head);margin:10px 0 3px;color:var(--vi-ink)}
+.vi-card h3 a{text-decoration:none}
+.vi-card h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.vi-cvl{display:block}
+.vi-card .vi-ex{font-size:14px}
+.vi-btn{display:block;margin:30px auto 0;background:var(--vi-btn);color:#fff;border:0;border-radius:3px;font:600 14px var(--vi-head);padding:12px 24px;cursor:pointer}
+.vi-btn:hover{background:#8c1c1c}
+
+/* ---------- หน้าอ่าน ---------- */
+.vi-art{padding-bottom:clamp(24px,4vw,44px)}
+.vi-crumb{font-size:13px;color:var(--vi-mute);margin:0 0 14px}
+.vi-crumb a{text-decoration:none}
+.vi-crumb a:hover{color:var(--vi-red)}
+.vi-head{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
+.vi-head h1{font:700 clamp(28px,4.4vw,46px)/1.38 var(--vi-head);color:var(--vi-ink);margin:12px 0 12px;letter-spacing:-.01em;text-wrap:balance}
+.vi-poster{display:block;width:100%;height:auto;background:var(--vi-panel)}
+.vi-cols{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:44px;margin-top:28px;align-items:start}
+.vi-prose{max-width:680px}
+.vi-prose p{margin:0 0 1.15em;font-size:18.5px;line-height:2;color:var(--vi-text)}
+.vi-prose p.b{position:relative;padding-left:22px;margin-bottom:.45em}
+.vi-prose p.b::before{content:"";position:absolute;left:2px;top:1em;width:7px;height:7px;background:var(--vi-red)}
+.vi-prose h2,.vi-prose h3{font-family:var(--vi-head);color:var(--vi-ink);line-height:1.4}
+.vi-prose h2{font-size:clamp(22px,2.8vw,28px);margin:1.6em 0 .6em}
+.vi-prose h3{font-size:clamp(19px,2.3vw,22px);margin:1.4em 0 .5em}
+.vi-prose blockquote{margin:1.6em 0;padding:2px 0 2px 20px;border-left:3px solid var(--vi-red);font:500 clamp(19px,2.4vw,24px)/1.7 var(--vi-head);color:var(--vi-ink)}
+.vi-prose ul{margin:0 0 1.2em;padding-left:1.3em}
+.vi-prose li{margin:.3em 0;font-size:18px;line-height:1.9}
+.vi-prose a{color:var(--vi-red);text-underline-offset:3px}
+.vi-art .artc-v h3{color:var(--vi-ink)}
+.vi-art .artc-note{color:var(--vi-red)}
+.vi-art .artc-share .btn{color:var(--vi-ink);border-color:var(--vi-rule)}
+.vi-art .artc-share .btn:hover{border-color:var(--vi-red);color:var(--vi-red)}
+.vi-side h4{font:700 15px var(--vi-head);color:var(--vi-ink);margin:0 0 6px;padding-top:10px;border-top:2px solid var(--vi-ink)}
+.vi-side p{margin:0 0 26px;font-size:14.5px;color:var(--vi-ex)}
+.vi-side ul{list-style:none;margin:0 0 26px;padding:0}
+.vi-side li{border-bottom:1px solid var(--vi-rule);font-size:14.5px;line-height:1.6}
+.vi-side li a{display:block;padding:10px 0;text-decoration:none}
+.vi-side li a:hover{color:var(--vi-red)}
+.vi-side li small{display:block;color:var(--vi-mute);font-size:12.5px}
+.vi-pn{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:34px;padding-top:18px;border-top:1px solid var(--vi-rule)}
+.vi-pn a{display:block;text-decoration:none}
+.vi-pn small{display:block;color:var(--vi-mute);font-size:12.5px;margin-bottom:2px}
+.vi-pn b{font:700 15.5px/1.55 var(--vi-head);color:var(--vi-ink)}
+.vi-pn a:hover b{color:var(--vi-red)}
+.vi-pn .r{text-align:right}
+
+@media (max-width:900px){
+  .vi-hero{grid-template-columns:1fr}
+  .vi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .vi-head{grid-template-columns:1fr;gap:18px}
+  .vi-poster{max-width:360px}
+  .vi-cols{grid-template-columns:1fr}
+}
+@media (max-width:700px){ .vi-stage{aspect-ratio:4/5} }
+@media (max-width:560px){
+  .vi-grid{grid-template-columns:1fr}
+  .vi-pn{grid-template-columns:1fr}
+  .vi-pn .r{text-align:left}
+  .vi-prose p{font-size:18px}
+}
