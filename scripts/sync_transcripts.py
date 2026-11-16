@@ -19,6 +19,7 @@ def get_recent_videos(max_results=SCAN_VIDEOS):
     cmd = [
         sys.executable, "-m", "yt_dlp",
         "--cookies", COOKIES_FILE,
+        "--ignore-no-formats",
         "--flat-playlist", "--dump-single-json",
         "--playlist-end", str(max_results), CHANNEL_URL
     ]
@@ -82,6 +83,7 @@ def fetch_sub_from_yt(vid):
     cmd = [
         sys.executable, "-m", "yt_dlp",
         "--cookies", COOKIES_FILE,
+        "--ignore-no-formats",
         "--skip-download",
         "--write-sub", "--write-auto-sub",
         "--sub-langs", "th-orig,th.*,en.*,th,en",
