@@ -18,6 +18,8 @@ from google import genai
 CHANNEL_URL = "https://www.youtube.com/@ArifSalafi/videos"
 DATA_FILE = "data/transcripts-index.json"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+BATCH_LIMIT = 20      # จำนวนคลิปที่จะทำต่อการกดรัน 1 ครั้ง
+SCAN_VIDEOS = 100     # ดึงรายชื่อคลิปย้อนหลังสูงสุด 100 คลิป
 
 client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 print("กำลังโหลดโมเดล Whisper...")
@@ -28,7 +30,7 @@ def format_sec(sec):
     h, m = divmod(m, 60)
     return f"{h:02d}:{m:02d}:{s:02d}" if h > 0 else f"{m:02d}:{s:02d}"
 
-def get_recent_videos(max_results=20):
+def get_recent_videos(max_results=SCAN_VIDEOS):
     cmd = [
         sys.executable, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
         "--playlist-end", str(max_results), CHANNEL_URL
@@ -57,9 +59,9 @@ def download_audio(vid):
 
 def transcribe_local_whisper(audio_path):
     try:
-        segs_raw, info = whisper_model.transcribe(audio_path, beam_size=5, vad_filter=True)
+        segs_raw, info = whisper_model.transcribe(audio_path, beam_size=2, vad_filter=True)
         total_dur = info.duration or 0
-        print(f"  -> ตรวจพบภาษา: {info.language} | ความยาวคลิป: {format_sec(total_dur)}")
+        print(f"  -> ตรวจพบภาษา: {info.language} | ความยาวคลิป: {format_sec(total_dur)}", flush=True)
         merged = []
         cur_start = None
         cur_texts = []
@@ -70,7 +72,7 @@ def transcribe_local_whisper(audio_path):
             if not txt:
                 continue
 
-            if time.time() - last_print >= 3:
+            if time.time() - last_print >= 5:
                 pct = f" ({min(100, int((s.end / total_dur) * 100))}%)" if total_dur > 0 else ""
                 preview = txt[:32] + "..." if len(txt) > 32 else txt
                 print(f"  -> กำลังถอดเสียง [{format_sec(s.end)} / {format_sec(total_dur)}]{pct} : {preview}", flush=True)
@@ -119,28 +121,33 @@ def main():
     os.makedirs("data", exist_ok=True)
     db = json.load(open(DATA_FILE, "r", encoding="utf-8")) if os.path.exists(DATA_FILE) else {"channel": "@ArifSalafi", "updated_at": "", "videos": []}
     existing_ids = {v["id"] for v in db.get("videos", [])}
-    print("กำลังโหลดรายชื่อคลิปจากช่อง @ArifSalafi...", flush=True)
-    videos = get_recent_videos(20)
+    print(f"กำลังโหลดรายชื่อคลิปย้อนหลัง {SCAN_VIDEOS} คลิปจากช่อง @ArifSalafi (มีในระบบแล้ว {len(existing_ids)} คลิป)...", flush=True)
+    videos = get_recent_videos(SCAN_VIDEOS)
     count = 0
     for item in videos:
         vid = item.get("id")
         title = item.get("title", "")
         if not vid or vid in existing_ids:
             continue
-        if count >= 3:
+        if count >= BATCH_LIMIT:
             break
         try:
-            print(f"\n[คลิปที่ {count + 1}/3] กำลังโหลดเสียง: {title}...", flush=True)
+            print(f"\n[คลิปที่ {count + 1}/{BATCH_LIMIT}] กำลังโหลดเสียง: {title}...", flush=True)
             audio_file = download_audio(vid)
             raw_segs = transcribe_local_whisper(audio_file)
             cleaned = proofread_with_gemini(raw_segs, title)
             db["videos"].insert(0, {"id": vid, "title": title, "date": "", "segments": cleaned})
             db["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             json.dump(db, open(DATA_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+            existing_ids.add(vid)
             count += 1
-            print(f"สำเร็จ: {title} ({len(cleaned)} ประโยค)", flush=True)
+            print(f"สำเร็จ: {title} ({len(cleaned)} ประโยค) -> บันทึกลงไฟล์เรียบร้อย", flush=True)
+            time.sleep(3)
         except Exception as e:
             print(f"ข้าม {title}: {e}", flush=True)
+            time.sleep(2)
+
+    print(f"\n=== เสร็จสิ้นรอบนี้: เพิ่มสำเร็จ {count} คลิป (รวมทั้งหมดในฐานข้อมูล {len(db['videos'])} คลิป) ===", flush=True)
 
 if __name__ == "__main__":
     main()
