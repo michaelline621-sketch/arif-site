@@ -1,127 +1,60 @@
-import av
-_orig_av_open = av.open
-def _patched_av_open(*args, **kwargs):
-    kwargs.pop("metadata_errors", None)
-    return _orig_av_open(*args, **kwargs)
-av.open = _patched_av_open
-
 import os
+import re
 import sys
 import json
 import time
-import glob
+import random
 import subprocess
 from datetime import datetime, timezone
-from faster_whisper import WhisperModel
-from google import genai
+from http.cookiejar import MozillaCookieJar
+import requests
+from youtube_transcript_api import YouTubeTranscriptApi
 
 CHANNEL_URL = "https://www.youtube.com/@ArifSalafi/videos"
 DATA_FILE = "data/transcripts-index.json"
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-BATCH_LIMIT = 20      # จำนวนคลิปที่จะทำต่อการกดรัน 1 ครั้ง
-SCAN_VIDEOS = 100     # ดึงรายชื่อคลิปย้อนหลังสูงสุด 100 คลิป
+COOKIES_FILE = "cookies.txt"
+BATCH_LIMIT = 50
+SCAN_VIDEOS = 150
 
-client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
-print("กำลังโหลดโมเดล Whisper...")
-whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
-
-def format_sec(sec):
-    m, s = divmod(int(sec), 60)
-    h, m = divmod(m, 60)
-    return f"{h:02d}:{m:02d}:{s:02d}" if h > 0 else f"{m:02d}:{s:02d}"
+def build_session():
+    s = requests.Session()
+    s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36"})
+    if os.path.exists(COOKIES_FILE):
+        j = MozillaCookieJar(COOKIES_FILE)
+        j.load(ignore_discard=True, ignore_expires=True)
+        s.cookies = j
+    return s
 
 def get_recent_videos(max_results=SCAN_VIDEOS):
-    cmd = [
-        sys.executable, "-m", "yt_dlp", "--flat-playlist", "--dump-single-json",
-        "--playlist-end", str(max_results), CHANNEL_URL
-    ]
-    res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-    if res.returncode != 0:
-        raise RuntimeError(f"ดึงรายชื่อคลิปไม่สำเร็จ: {res.stderr}")
-    data = json.loads(res.stdout)
-    return data.get("entries", [])
+    cmd = [sys.executable, "-m", "yt_dlp", "--cookies", COOKIES_FILE, "--flat-playlist", "--dump-single-json", "--playlist-end", str(max_results), CHANNEL_URL]
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr)
+    return json.loads(r.stdout).get("entries", [])
 
-def download_audio(vid):
-    for old in glob.glob(f"temp_{vid}*"):
-        os.remove(old)
-    cmd = [
-        sys.executable, "-m", "yt_dlp",
-        "-f", "worstaudio[ext=m4a]/worstaudio",
-        "-o", f"temp_{vid}.%(ext)s",
-        f"https://www.youtube.com/watch?v={vid}"
-    ]
-    res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore")
-    files = [f for f in glob.glob(f"temp_{vid}*") if not f.endswith(".part")]
-    if not files:
-        err_line = [l for l in (res.stderr or "").splitlines() if "ERROR" in l]
-        raise RuntimeError(err_line[-1] if err_line else "โหลดเสียงไม่สำเร็จ")
-    return files[0]
-
-def transcribe_local_whisper(audio_path):
-    try:
-        segs_raw, info = whisper_model.transcribe(audio_path, beam_size=2, vad_filter=True)
-        total_dur = info.duration or 0
-        print(f"  -> ตรวจพบภาษา: {info.language} | ความยาวคลิป: {format_sec(total_dur)}", flush=True)
-        merged = []
-        cur_start = None
-        cur_texts = []
-        last_print = time.time()
-
-        for s in segs_raw:
-            txt = s.text.strip()
-            if not txt:
-                continue
-
-            if time.time() - last_print >= 5:
-                pct = f" ({min(100, int((s.end / total_dur) * 100))}%)" if total_dur > 0 else ""
-                preview = txt[:32] + "..." if len(txt) > 32 else txt
-                print(f"  -> กำลังถอดเสียง [{format_sec(s.end)} / {format_sec(total_dur)}]{pct} : {preview}", flush=True)
-                last_print = time.time()
-
-            if cur_start is None:
-                cur_start = round(s.start)
-            cur_texts.append(txt)
-            if len(" ".join(cur_texts)) >= 140:
-                merged.append({"t": cur_start, "txt": " ".join(cur_texts)})
-                cur_start = None
-                cur_texts = []
-
-        if cur_texts and cur_start is not None:
+def merge_segments(raw_items):
+    merged, cur_start, cur_texts = [], None, []
+    for item in raw_items:
+        t = round(float(item.get("start", 0)))
+        txt = re.sub(r"\s+", " ", str(item.get("text", ""))).strip()
+        if not txt:
+            continue
+        if cur_start is None:
+            cur_start = t
+        cur_texts.append(txt)
+        if len(" ".join(cur_texts)) >= 140:
             merged.append({"t": cur_start, "txt": " ".join(cur_texts)})
-        print(f"  -> ถอดเสียงครบ 100% ได้ทั้งหมด {len(merged)} ช่วงประโยค", flush=True)
-        return merged
-    finally:
-        if os.path.exists(audio_path):
-            os.remove(audio_path)
-
-def proofread_with_gemini(segments, video_title):
-    if not client or not segments:
-        return segments
-    chunk_size = 50
-    cleaned_all = []
-    total_chunks = (len(segments) + chunk_size - 1) // chunk_size
-    for idx, i in enumerate(range(0, len(segments), chunk_size), start=1):
-        chunk = segments[i:i + chunk_size]
-        print(f"  -> กำลังเกลาคำสะกดด้วย Gemini ชุดที่ {idx}/{total_chunks}...", flush=True)
-        prompt = f"แก้คำสะกดที่เพี้ยนจากการถอดเสียงของคลิป '{video_title}' (เช่น ศัพท์อิสลาม ปรัชญา วิทยาศาสตร์) โดยห้ามเปลี่ยนโครงสร้าง JSON และห้ามเปลี่ยนเลขเวลา t:\n{json.dumps(chunk, ensure_ascii=False)}"
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=prompt,
-                config={"response_mime_type": "application/json"}
-            )
-            cleaned_all.extend(json.loads(response.text))
-            time.sleep(2)
-        except Exception as e:
-            print(f"  -> ข้ามการเกลาชุดที่ {idx} (ใช้ข้อความต้นฉบับแทน): {str(e)[:60]}", flush=True)
-            cleaned_all.extend(chunk)
-    return cleaned_all
+            cur_start, cur_texts = None, []
+    if cur_texts and cur_start is not None:
+        merged.append({"t": cur_start, "txt": " ".join(cur_texts)})
+    return merged
 
 def main():
     os.makedirs("data", exist_ok=True)
     db = json.load(open(DATA_FILE, "r", encoding="utf-8")) if os.path.exists(DATA_FILE) else {"channel": "@ArifSalafi", "updated_at": "", "videos": []}
     existing_ids = {v["id"] for v in db.get("videos", [])}
-    print(f"กำลังโหลดรายชื่อคลิปย้อนหลัง {SCAN_VIDEOS} คลิปจากช่อง @ArifSalafi (มีในระบบแล้ว {len(existing_ids)} คลิป)...", flush=True)
+    api = YouTubeTranscriptApi(http_client=build_session())
+    print(f"กำลังโหลดรายชื่อคลิปย้อนหลัง {SCAN_VIDEOS} คลิป (มีในระบบแล้ว {len(existing_ids)} คลิป)...", flush=True)
     videos = get_recent_videos(SCAN_VIDEOS)
     count = 0
     for item in videos:
@@ -132,22 +65,37 @@ def main():
         if count >= BATCH_LIMIT:
             break
         try:
-            print(f"\n[คลิปที่ {count + 1}/{BATCH_LIMIT}] กำลังโหลดเสียง: {title}...", flush=True)
-            audio_file = download_audio(vid)
-            raw_segs = transcribe_local_whisper(audio_file)
-            cleaned = proofread_with_gemini(raw_segs, title)
-            db["videos"].insert(0, {"id": vid, "title": title, "date": "", "segments": cleaned})
+            print(f"\n[{count+1}/{BATCH_LIMIT}] {title}...", flush=True)
+            tlist = api.list(vid)
+            chosen = None
+            for lang in ["th", "th-TH", "en", "en-US"]:
+                try:
+                    chosen = tlist.find_transcript([lang])
+                    break
+                except Exception:
+                    pass
+            if chosen is None:
+                chosen = next(iter(tlist))
+            segs = merge_segments([{"start": s.start, "text": s.text} for s in chosen.fetch()])
+            db["videos"].insert(0, {"id": vid, "title": title, "date": "", "segments": segs})
             db["updated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             json.dump(db, open(DATA_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
             existing_ids.add(vid)
             count += 1
-            print(f"สำเร็จ: {title} ({len(cleaned)} ประโยค) -> บันทึกลงไฟล์เรียบร้อย", flush=True)
-            time.sleep(3)
+            w = random.randint(20, 30)
+            print(f"สำเร็จ ({len(segs)} ช่วง) -> พัก {w} วิ...", flush=True)
+            time.sleep(w)
         except Exception as e:
-            print(f"ข้าม {title}: {e}", flush=True)
-            time.sleep(2)
-
-    print(f"\n=== เสร็จสิ้นรอบนี้: เพิ่มสำเร็จ {count} คลิป (รวมทั้งหมดในฐานข้อมูล {len(db['videos'])} คลิป) ===", flush=True)
+            err = str(e)
+            if "members-only" in err.lower() or "join this channel" in err.lower():
+                print(f"ข้าม (คลิปสมาชิก): {title}", flush=True)
+                continue
+            print(f"ข้าม {title}: {err[:120]}", flush=True)
+            if "blocking requests" in err.lower() or "429" in err.lower():
+                print("ตรวจพบ IP บล็อก — หยุดรอบนี้", flush=True)
+                break
+            time.sleep(10)
+    print(f"\nเสร็จสิ้น: เพิ่ม {count} คลิป (รวม {len(db['videos'])} คลิป)", flush=True)
 
 if __name__ == "__main__":
     main()
