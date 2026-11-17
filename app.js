@@ -1687,11 +1687,11 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
       var topTags = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a]; }).slice(0, 4);
       if (topTags.length > 1) { html += '<div class="sr-refine"><span>ผลเยอะ ลองดูเฉพาะหมวด</span>' + topTags.map(function (t) { return '<button type="button" class="chip" data-rf="' + esc(t) + '">' + esc(t) + " <span>" + cnt[t].toLocaleString("th-TH") + "</span></button>"; }).join("") + "</div>"; }
     }
-    ORDER.forEach(function (k) {
+    var _srShown = 0; ORDER.forEach(function (k) {
       var L = groups[k]; if (!L) { return; }
       if (!SR.kind) { html += '<div class="sr-h">' + esc(LABEL[k] || k) + ' <span class="c">' + L.length + "</span></div>"; }
       if (k === "อีบุ๊ก") { html += '<p class="sr-note">ข้อความสกัดจากไฟล์ PDF อาจมีตัวสะกดเพี้ยนเล็กน้อย กดเพื่อเปิดอีบุ๊กฉบับเต็ม (ดูตามเลขหน้าที่ระบุ)</p>'; }
-      var lim = SR.lim[k] || (SR.kind ? 30 : 8);
+      var lim = Math.min(SR.lim[k] || (SR.kind ? 30 : 8), Math.max(0, 50 - _srShown)); if (!lim) { return; } _srShown += Math.min(L.length, lim);
       L.slice(0, lim).forEach(function (x) {
         var qh = matchedQ(x.it, r.flat, x.qHit), i = SR.rows.push(x.it) - 1;
         var thumb = x.it.ref && x.it.ref.id ? ytImg(x.it.ref.id, "rr-thumb") : '<span class="rr-thumb rr-thumb-empty" aria-hidden="true">' + (k === "หนังสือ" || k === "อีบุ๊ก" ? "▤" : "▶") + '</span>';
@@ -1725,7 +1725,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     if (it.act === "play") { resumeSearchOnPlayerClose = sr.open; sr.close(); openPlayer(it.ref); }
     else { sr.close(); if (it.act === "url") { var u = safeUrl(it.ref.url); if (u) { window.open(u, "_blank", "noopener"); } } else if (it.act === "lib") { location.href = "library/?book=" + encodeURIComponent(it.ref.id); } }
   }
-  qi.addEventListener("input", function () { renderSearch(qi.value); });
+  var _srT; qi.addEventListener("input", function () { clearTimeout(_srT); _srT = setTimeout(function () { renderSearch(qi.value); }, 250); });
   qi.addEventListener("keydown", function (e) { if (e.key === "Enter") { recentAdd(qi.value); } });
   if ($("srClearQ")) { $("srClearQ").addEventListener("click", function () { qi.value = ""; SR.kind = ""; renderSearch(""); qi.focus(); }); }
   $("srAdvancedToggle").addEventListener("click", function () {
