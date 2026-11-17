@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 CHANNEL_URL = "https://www.youtube.com/@ArifSalafi/videos"
 DATA_FILE = "data/transcripts-index.json"
 COOKIES_FILE = "cookies.txt"
-BATCH_LIMIT = 100
+BATCH_LIMIT = 3
 SCAN_VIDEOS = 500
 
 
@@ -126,6 +126,7 @@ def main():
     videos = get_recent_videos(SCAN_VIDEOS)
 
     count = 0
+    consec_rate_limit = 0
     for item in videos:
         vid = item.get("id")
         title = item.get("title", "")
@@ -141,19 +142,28 @@ def main():
             json.dump(db, open(DATA_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
             existing.add(vid)
             count += 1
-            w = random.randint(20, 30)
+            consec_rate_limit = 0
+            w = random.randint(45, 70)
             print(f"สำเร็จ ({len(segs)} ช่วง) -> พัก {w} วิ...", flush=True)
             time.sleep(w)
         except Exception as e:
             err = str(e)
             if err == "MEMBERS_ONLY":
                 print(f"ข้าม (คลิปสมาชิก): {title}", flush=True)
+                consec_rate_limit = 0
                 continue
             if err == "RATE_LIMIT":
-                print("ตรวจพบ Rate Limit — หยุดรอบนี้", flush=True)
-                break
+                consec_rate_limit += 1
+                w_err = random.randint(60, 90)
+                print(f"ตรวจพบ Rate Limit ({consec_rate_limit}/3) -> พัก {w_err} วิ แล้วไปคลิปถัดไป", flush=True)
+                if consec_rate_limit >= 3:
+                    print("ติด Rate Limit ต่อเนื่อง 3 คลิป — หยุดรอบนี้", flush=True)
+                    break
+                time.sleep(w_err)
+                continue
+            consec_rate_limit = 0
             print(f"ข้าม {title}: {err}", flush=True)
-            time.sleep(5)
+            time.sleep(10)
 
     print(f"\nเสร็จสิ้น: เพิ่ม {count} คลิป (รวม {len(db['videos'])} คลิป)", flush=True)
 
