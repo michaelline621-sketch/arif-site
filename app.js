@@ -1627,7 +1627,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     TYPO = {}; ORIG = {}; norm(q).split(" ").forEach(function (w) { ORIG[w] = 1; });
     var G = groupsOf(q), flat = [].concat.apply([], G), res = [], usedSyn = false, fuzzy = false, ALL = allItems().filter(function (it) { return matchesPillar(it) && (!SR.kind || (SR.kind === "คำตอบ" ? it.k === "คำตอบ" : SR.kind === "ตอน" ? it.k === "ตอน" || it.k === "ตอนในซีรีส์" : it.k === SR.kind)); });
     ALL.forEach(function (it) {
-      var hayT = norm(it.t), hayQ = norm(it.qs.join(" | ")), hayAll = hayT + " " + hayQ + " " + norm(it.sub) + " " + norm(it.extra), score = 0, ok = true, viaSyn = false;
+      if (it._hayAll === undefined) { it._hayT = norm(it.t); it._hayQ = norm(it.qs.join(" | ")); it._hayAll = it._hayT + " " + it._hayQ + " " + norm(it.sub) + " " + norm(it.extra); } var hayT = it._hayT, hayQ = it._hayQ, hayAll = it._hayAll, score = 0, ok = true, viaSyn = false;
       for (var gi = 0; gi < G.length; gi++) {
         var g = G[gi], hit = false;
         for (var vi = 0; vi < g.length; vi++) { if (has(hayAll, g[vi]) || bkHas(it, g[vi])) { hit = true; if (vi > 0) { viaSyn = true; } if (has(hayT, g[vi])) { score += 3; } if (has(hayQ, g[vi])) { score += 4; } if (it.nb) { score += Math.min(3, it.nb.split(bkNorm(g[vi])).length - 1) * 0.5; } break; } }
@@ -1683,7 +1683,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     if (r.usedSyn) { var g0 = r.G.filter(function (g) { return g.length > 1; })[0]; if (g0) { var alt = g0.slice(1).filter(function (w, i, a) { return a.indexOf(w) === i && w !== g0[0]; }).slice(0, 4); if (alt.length) { html += '<p class="sr-note">รวมคำใกล้เคียงให้แล้ว: ' + esc(alt.join(" · ")) + "</p>"; } } }
     if (r.fuzzy) { html += '<p class="sr-note">ไม่เจอคำตรงๆ แสดงรายการที่ข้อความใกล้เคียงที่สุด</p>'; }
     if (total > 30 && !SR.pil) {
-      var cnt = {}; allMatches.forEach(function (x) { autoTags(x.it).forEach(function (t) { cnt[t] = (cnt[t] || 0) + 1; }); });
+      var cnt = {}; allMatches.slice(0, 500).forEach(function (x) { autoTags(x.it).forEach(function (t) { cnt[t] = (cnt[t] || 0) + 1; }); });
       var topTags = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a]; }).slice(0, 4);
       if (topTags.length > 1) { html += '<div class="sr-refine"><span>ผลเยอะ ลองดูเฉพาะหมวด</span>' + topTags.map(function (t) { return '<button type="button" class="chip" data-rf="' + esc(t) + '">' + esc(t) + " <span>" + cnt[t].toLocaleString("th-TH") + "</span></button>"; }).join("") + "</div>"; }
     }
