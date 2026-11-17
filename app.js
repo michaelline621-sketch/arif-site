@@ -1597,7 +1597,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     });
     it._autoTags = tags; return tags;
   }
-  function allItems() { var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; }
+  function allItems() { var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; } var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; }
     var A = [];
     D.answers.forEach(function (a) { A.push({ k: "คำตอบ", t: a.q, qs: [], sub: "เริ่มที่ " + fmtClock(a.sec) + (a.srcTitle ? " · " + a.srcTitle : "") + (a.sum ? " — " + firstSent(a.sum) : ""), extra: a.topics + " " + a.sum, p: "", ref: a, act: "play" }); });
     D.eps.forEach(function (e) { A.push({ k: "ตอน", t: e.title, qs: e.qs, sub: e.program + (e.num ? " ตอนที่ " + e.num : "") + (e.summary ? " — " + firstSent(e.summary) : ""), extra: e.topics + " " + e.summary, p: "", ref: e, act: "play" }); });
@@ -1608,7 +1608,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     D.lib.forEach(function (b) { A.push({ k: "ห้องสมุด", t: b.t, qs: [], sub: (b.a || "") + (b.c ? " · " + b.c : ""), extra: b.tags, p: "", ref: b, act: "lib" }); });
     (BK.items || []).forEach(function (it) { A.push(it); });
     (TR.items || []).forEach(function (it) { A.push(it); });
-    A.forEach(autoTags); allItems._k = _k; allItems._c = A; return A;
+    A.forEach(autoTags); allItems._k = _k; allItems._c = A; allItems._k = _k; allItems._c = A; return A;
   }
   var ORDER = ["คำตอบ", "บทพูดในคลิป", "ตอน", "คลิปสั้น", "ตอนในซีรีส์", "ซีรีส์", "หนังสือ", "อีบุ๊ก", "ห้องสมุด"], LABEL = { "คำตอบ": "คำตอบในคลิป", "บทพูดในคลิป": "บทพูดในคลิป (YouTube)", "อีบุ๊ก": "ในเนื้อหาอีบุ๊ก" };
   function hl(text, vars) {
