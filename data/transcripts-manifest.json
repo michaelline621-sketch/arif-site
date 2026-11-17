@@ -1,0 +1,13 @@
+{
+  "shards": [
+    "data/transcripts-shards/part-01.json",
+    "data/transcripts-shards/part-02.json",
+    "data/transcripts-shards/part-03.json"
+  ],
+  "type": "wrapped_list",
+  "list_key": "videos",
+  "meta": {
+    "channel": "@ArifSalafi",
+    "updated_at": "2026-11-17T04:12:30Z"
+  }
+}

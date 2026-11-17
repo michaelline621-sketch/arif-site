@@ -1,3 +1,4 @@
+async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-manifest.json');const m=await r.json();const ps=await Promise.all(m.shards.map(u=>fetch('/'+u.replace(/^\/+/, '')).then(x=>x.json())));const d=m.type==='list'?ps.flat():m.type==='wrapped_list'?{...m.meta,[m.list_key]:ps.flat()}:Object.assign({},...ps);return{ok:true,status:200,json:async()=>d};}
 /* ARIF SALAFI · หน้าแรก (คลังค้นหา) · อ่านข้อมูลจาก Google Sheet ถ้าตั้ง SHEET_ID ไม่งั้นใช้ข้อมูลสำรอง */
 (function () {
   "use strict";
@@ -1524,7 +1525,7 @@
   function loadTranscriptIdx() {
     if (TR.items || TR.loading || !window.fetch) { return; }
     TR.loading = true;
-    fetch("data/transcripts-index.json").then(function (r) { if (!r.ok) { throw new Error("http"); } return r.json(); }).then(function (j) {
+    fetchTranscriptsSharded().then(function (r) { if (!r.ok) { throw new Error("http"); } return r.json(); }).then(function (j) {
       var items = [];
       (j.videos || []).forEach(function (v) {
         (v.segments || []).forEach(function (seg) {
