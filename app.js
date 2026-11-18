@@ -1716,7 +1716,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
   }
   function openSearch(v) {
     if (!sr.open) { sr.showModal(); }
-    loadBookIdx(); loadTranscriptIdx();
+    if (typeof v === "string" && v.trim().length >= 2) { loadBookIdx(); loadTranscriptIdx(); }
     if (typeof v === "string") { qi.value = v; }
     renderCats(); renderSearch(qi.value);
     setTimeout(function () { qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }, 30);
