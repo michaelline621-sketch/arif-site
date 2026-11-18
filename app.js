@@ -1597,7 +1597,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     });
     it._autoTags = tags; return tags;
   }
-  function allItems() { var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; } var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; }
+  function allItems() { var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (SR.useTr && TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; } var _k = D.answers.length + ":" + (BK.items ? BK.items.length : 0) + ":" + (TR.items ? TR.items.length : 0); if (allItems._k === _k && allItems._c) { return allItems._c; }
     var A = [];
     D.answers.forEach(function (a) { A.push({ k: "คำตอบ", t: a.q, qs: [], sub: "เริ่มที่ " + fmtClock(a.sec) + (a.srcTitle ? " · " + a.srcTitle : "") + (a.sum ? " — " + firstSent(a.sum) : ""), extra: a.topics + " " + a.sum, p: "", ref: a, act: "play" }); });
     D.eps.forEach(function (e) { A.push({ k: "ตอน", t: e.title, qs: e.qs, sub: e.program + (e.num ? " ตอนที่ " + e.num : "") + (e.summary ? " — " + firstSent(e.summary) : ""), extra: e.topics + " " + e.summary, p: "", ref: e, act: "play" }); });
@@ -1607,7 +1607,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     D.books.forEach(function (b) { A.push({ k: "หนังสือ", t: b.title, qs: [], sub: b.status || b.cat, extra: b.topics + " " + b.sub, p: "", ref: b, act: b.url ? "url" : "" }); });
     D.lib.forEach(function (b) { A.push({ k: "ห้องสมุด", t: b.t, qs: [], sub: (b.a || "") + (b.c ? " · " + b.c : ""), extra: b.tags, p: "", ref: b, act: "lib" }); });
     (BK.items || []).forEach(function (it) { A.push(it); });
-    (TR.items || []).forEach(function (it) { A.push(it); });
+    if (SR.useTr) { (TR.items || []).forEach(function (it) { A.push(it); }); }
     A.forEach(autoTags); allItems._k = _k; allItems._c = A; allItems._k = _k; allItems._c = A; return A;
   }
   var ORDER = ["คำตอบ", "บทพูดในคลิป", "ตอน", "คลิปสั้น", "ตอนในซีรีส์", "ซีรีส์", "หนังสือ", "อีบุ๊ก", "ห้องสมุด"], LABEL = { "คำตอบ": "คำตอบในคลิป", "บทพูดในคลิป": "บทพูดในคลิป (YouTube)", "อีบุ๊ก": "ในเนื้อหาอีบุ๊ก" };
@@ -1678,7 +1678,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     var total = allMatches.length, typeCounts = { "": total, "คำตอบ": (countGroups["คำตอบ"] || []).length, "บทพูดในคลิป": (countGroups["บทพูดในคลิป"] || []).length, "ตอน": (countGroups["ตอน"] || []).length + (countGroups["ตอนในซีรีส์"] || []).length, "คลิปสั้น": (countGroups["คลิปสั้น"] || []).length, "ซีรีส์": (countGroups["ซีรีส์"] || []).length, "หนังสือ": (countGroups["หนังสือ"] || []).length, "อีบุ๊ก": (countGroups["อีบุ๊ก"] || []).length };
     var typeTabs = [["","ทั้งหมด"],["คำตอบ","คำตอบในคลิป"],["บทพูดในคลิป","บทพูดในคลิป"],["ตอน","ตอน"],["คลิปสั้น","คลิปสั้น"],["ซีรีส์","ซีรีส์"],["หนังสือ","หนังสือ"],["อีบุ๊ก","ในอีบุ๊ก"]].filter(function (x) { return x[0] === "" || typeCounts[x[0]] > 0; });
     html += '<div class="sr-results-head"><strong>พบ ' + total.toLocaleString("th-TH") + ' รายการสำหรับ <span>“' + esc(q) + '”</span></strong><button type="button" class="sr-clear" data-clear-search>ล้างตัวกรอง</button></div>';
-    html += '<div class="sr-types" role="group" aria-label="กรองตามชนิดเนื้อหา">' + typeTabs.map(function (x) { return '<button type="button" class="sr-type" data-sk="' + esc(x[0]) + '" aria-pressed="' + (SR.kind === x[0]) + '">' + esc(x[1]) + ' <span>' + typeCounts[x[0]].toLocaleString("th-TH") + '</span></button>'; }).join("") + (!TR.items ? '<button type="button" class="sr-type" data-load-tr="1"' + (TR.loading ? ' disabled style="opacity:0.7;cursor:wait"' : '') + '>' + (TR.loading ? '⏳ กำลังโหลดบทพูด...' : '+ ค้นในบทพูดคลิปด้วย') + '</button>' : '') + '</div>' + (TR.loading ? '<p class="sr-note">⏳ กำลังโหลดบทพูดจาก 716 คลิป กรุณารอสักครู่...</p>' : '');
+    html += '<div class="sr-types" role="group" aria-label="กรองตามชนิดเนื้อหา">' + typeTabs.map(function (x) { return '<button type="button" class="sr-type" data-sk="' + esc(x[0]) + '" aria-pressed="' + (SR.kind === x[0]) + '">' + esc(x[1]) + ' <span>' + typeCounts[x[0]].toLocaleString("th-TH") + '</span></button>'; }).join("") + (!SR.useTr ? '<button type="button" class="sr-type" data-load-tr="1">+ ค้นในบทพูดคลิปด้วย</button>' : (!TR.items ? '<button type="button" class="sr-type" disabled style="opacity:0.7;cursor:wait">⏳ กำลังโหลดบทพูด...</button>' : '')) + '</div>' + (SR.useTr && !TR.items ? '<p class="sr-note">⏳ กำลังโหลดบทพูดจาก 716 คลิป กรุณารอสักครู่...</p>' : '');
     var tk = Object.keys(r.typo); if (tk.length) { html += '<p class="sr-note">แก้คำสะกดให้: ' + esc(tk[0]) + " → " + esc(r.typo[tk[0]]) + "</p>"; }
     if (r.usedSyn) { var g0 = r.G.filter(function (g) { return g.length > 1; })[0]; if (g0) { var alt = g0.slice(1).filter(function (w, i, a) { return a.indexOf(w) === i && w !== g0[0]; }).slice(0, 4); if (alt.length) { html += '<p class="sr-note">รวมคำใกล้เคียงให้แล้ว: ' + esc(alt.join(" · ")) + "</p>"; } } }
     if (r.fuzzy) { html += '<p class="sr-note">ไม่เจอคำตรงๆ แสดงรายการที่ข้อความใกล้เคียงที่สุด</p>'; }
@@ -1725,7 +1725,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     if (it.act === "play") { resumeSearchOnPlayerClose = sr.open; sr.close(); openPlayer(it.ref); }
     else { sr.close(); if (it.act === "url") { var u = safeUrl(it.ref.url); if (u) { window.open(u, "_blank", "noopener"); } } else if (it.act === "lib") { location.href = "library/?book=" + encodeURIComponent(it.ref.id); } }
   }
-  var _srT; qi.addEventListener("input", function () { clearTimeout(_srT); _srT = setTimeout(function () { renderSearch(qi.value); }, 250); });
+  var _srT; qi.addEventListener("input", function () { clearTimeout(_srT); _srT = setTimeout(function () { SR.useTr = false; renderSearch(qi.value); }, 250); });
   qi.addEventListener("keydown", function (e) { if (e.key === "Enter") { recentAdd(qi.value); } });
   if ($("srClearQ")) { $("srClearQ").addEventListener("click", function () { qi.value = ""; SR.kind = ""; renderSearch(""); qi.focus(); }); }
   $("srAdvancedToggle").addEventListener("click", function () {
@@ -1737,7 +1737,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
   $("srAdvancedReset").addEventListener("click", function () { SR.pil = ""; SR.sort = "relevance"; renderCats(); renderSearch(qi.value); });
   $("srb").addEventListener("click", function (e) {
     var tab = e.target.closest("[data-sk]"), clear = e.target.closest("[data-clear-search]"), suggestion = e.target.closest("[data-sq]"), rf = e.target.closest("[data-rf]"), rc = e.target.closest("[data-rclear]");
-    if (e.target.closest("[data-load-tr]")) { if (TR.loading) { return; } SR.useTr = true; loadTranscriptIdx(); renderSearch(qi.value); return; } if (e.target.closest(".rr-go,.rr-main")) { recentAdd(qi.value); }
+    if (e.target.closest("[data-load-tr]")) { if (TR.loading) { return; } SR.useTr = true; renderSearch(qi.value); setTimeout(function () { loadTranscriptIdx(); }, 30); return; } if (e.target.closest(".rr-go,.rr-main")) { recentAdd(qi.value); }
     var more = e.target.closest("[data-more]");
     if (more) { var mk = more.getAttribute("data-more"); SR.lim[mk] = (SR.lim[mk] || (SR.kind ? 30 : 8)) + 20; var bd = $("srb"), st = bd ? bd.scrollTop : 0; renderSearch(qi.value); if (bd) { bd.scrollTop = st; } return; }
     if (rf) { SR.pil = rf.getAttribute("data-rf"); renderCats(); renderSearch(qi.value); }
