@@ -1659,7 +1659,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
   function recentAdd(q) { q = String(q || "").trim(); if (q.length < 2) { return; } try { var l = recentGet().filter(function (x) { return x !== q; }); l.unshift(q); localStorage.setItem(RS_KEY, JSON.stringify(l.slice(0, 6))); } catch (e) {} }
   function renderSearch(q) {
     var cq = $("srClearQ"); if (cq) { cq.hidden = !qi.value; }
-    if (String(q).trim().length >= 2) { loadBookIdx(); loadTranscriptIdx(); }
+    if (String(q).trim().length >= 2) { loadBookIdx(); if (SR.useTr) { loadTranscriptIdx(); } }
     var body = $("srb"); q = q.trim(); SR.rows = [];
     if (!q) {
       var pop = popularQs(), recent = recentGet();
@@ -1678,7 +1678,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
     var total = allMatches.length, typeCounts = { "": total, "คำตอบ": (countGroups["คำตอบ"] || []).length, "บทพูดในคลิป": (countGroups["บทพูดในคลิป"] || []).length, "ตอน": (countGroups["ตอน"] || []).length + (countGroups["ตอนในซีรีส์"] || []).length, "คลิปสั้น": (countGroups["คลิปสั้น"] || []).length, "ซีรีส์": (countGroups["ซีรีส์"] || []).length, "หนังสือ": (countGroups["หนังสือ"] || []).length, "อีบุ๊ก": (countGroups["อีบุ๊ก"] || []).length };
     var typeTabs = [["","ทั้งหมด"],["คำตอบ","คำตอบในคลิป"],["บทพูดในคลิป","บทพูดในคลิป"],["ตอน","ตอน"],["คลิปสั้น","คลิปสั้น"],["ซีรีส์","ซีรีส์"],["หนังสือ","หนังสือ"],["อีบุ๊ก","ในอีบุ๊ก"]].filter(function (x) { return x[0] === "" || typeCounts[x[0]] > 0; });
     html += '<div class="sr-results-head"><strong>พบ ' + total.toLocaleString("th-TH") + ' รายการสำหรับ <span>“' + esc(q) + '”</span></strong><button type="button" class="sr-clear" data-clear-search>ล้างตัวกรอง</button></div>';
-    html += '<div class="sr-types" role="group" aria-label="กรองตามชนิดเนื้อหา">' + typeTabs.map(function (x) { return '<button type="button" class="sr-type" data-sk="' + esc(x[0]) + '" aria-pressed="' + (SR.kind === x[0]) + '">' + esc(x[1]) + ' <span>' + typeCounts[x[0]].toLocaleString("th-TH") + '</span></button>'; }).join("") + '</div>';
+    html += '<div class="sr-types" role="group" aria-label="กรองตามชนิดเนื้อหา">' + typeTabs.map(function (x) { return '<button type="button" class="sr-type" data-sk="' + esc(x[0]) + '" aria-pressed="' + (SR.kind === x[0]) + '">' + esc(x[1]) + ' <span>' + typeCounts[x[0]].toLocaleString("th-TH") + '</span></button>'; }).join("") + (!SR.useTr ? '<button type="button" class="sr-type" data-load-tr="1">' + (TR.loading ? 'กำลังโหลดบทพูด...' : '+ ค้นในบทพูดคลิปด้วย') + '</button>' : '') + '</div>';
     var tk = Object.keys(r.typo); if (tk.length) { html += '<p class="sr-note">แก้คำสะกดให้: ' + esc(tk[0]) + " → " + esc(r.typo[tk[0]]) + "</p>"; }
     if (r.usedSyn) { var g0 = r.G.filter(function (g) { return g.length > 1; })[0]; if (g0) { var alt = g0.slice(1).filter(function (w, i, a) { return a.indexOf(w) === i && w !== g0[0]; }).slice(0, 4); if (alt.length) { html += '<p class="sr-note">รวมคำใกล้เคียงให้แล้ว: ' + esc(alt.join(" · ")) + "</p>"; } } }
     if (r.fuzzy) { html += '<p class="sr-note">ไม่เจอคำตรงๆ แสดงรายการที่ข้อความใกล้เคียงที่สุด</p>'; }
@@ -1716,7 +1716,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
   }
   function openSearch(v) {
     if (!sr.open) { sr.showModal(); }
-    if (typeof v === "string" && v.trim().length >= 2) { loadBookIdx(); loadTranscriptIdx(); }
+    if (typeof v === "string" && v.trim().length >= 2) { loadBookIdx(); if (SR.useTr) { loadTranscriptIdx(); } }
     if (typeof v === "string") { qi.value = v; }
     renderCats(); renderSearch(qi.value);
     setTimeout(function () { qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }, 30);
@@ -1737,7 +1737,7 @@ async function fetchTranscriptsSharded(){const r=await fetch('/data/transcripts-
   $("srAdvancedReset").addEventListener("click", function () { SR.pil = ""; SR.sort = "relevance"; renderCats(); renderSearch(qi.value); });
   $("srb").addEventListener("click", function (e) {
     var tab = e.target.closest("[data-sk]"), clear = e.target.closest("[data-clear-search]"), suggestion = e.target.closest("[data-sq]"), rf = e.target.closest("[data-rf]"), rc = e.target.closest("[data-rclear]");
-    if (e.target.closest(".rr-go,.rr-main")) { recentAdd(qi.value); }
+    if (e.target.closest("[data-load-tr]")) { SR.useTr = true; loadTranscriptIdx(); renderSearch(qi.value); return; } if (e.target.closest(".rr-go,.rr-main")) { recentAdd(qi.value); }
     var more = e.target.closest("[data-more]");
     if (more) { var mk = more.getAttribute("data-more"); SR.lim[mk] = (SR.lim[mk] || (SR.kind ? 30 : 8)) + 20; var bd = $("srb"), st = bd ? bd.scrollTop : 0; renderSearch(qi.value); if (bd) { bd.scrollTop = st; } return; }
     if (rf) { SR.pil = rf.getAttribute("data-rf"); renderCats(); renderSearch(qi.value); }
